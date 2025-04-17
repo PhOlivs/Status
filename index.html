@@ -4,41 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Status RPG - Atributos e Moedas</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background-color: #f2f2f2;
-      color: #333;
-    }
-    .status-container {
-      margin-bottom: 20px;
-    }
-    .status-item {
-      margin: 10px 0;
-    }
-    .status-item span {
-      font-weight: bold;
-    }
-    .button {
-      margin-left: 10px;
-      padding: 5px 10px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    .button:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-    }
-    .add-attribute {
-      margin-top: 20px;
-    }
-    input {
-      margin: 5px;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -80,11 +46,33 @@
     <button class="button" onclick="addExtraAttribute()">Adicionar</button>
   </div>
 
+  <!-- Novos Campos -->
+  <h3>Estigmas</h3>
+  <div id="estigmas-container">
+    <button class="button" onclick="addEstigma()">Adicionar Estigma</button>
+  </div>
+
+  <h3>Constelação</h3>
+  <div id="constelacao-container">
+    <button class="button" onclick="addConstelacao()">Adicionar Constelação</button>
+  </div>
+
+  <h3>Inventário</h3>
+  <textarea id="inventario" placeholder="Digite seu inventário aqui..."></textarea>
+
+  <!-- Botões de Save e Import -->
+  <h3>Salvar e Importar Estado</h3>
+  <button class="button" onclick="saveState()">Salvar Estado</button>
+  <button class="button" onclick="importState()">Importar Estado</button>
+  <textarea id="save-state"></textarea>
+
   <script>
     let moedas = 100;
     let mana = 100;
     let nivel = 1;
     let poderMagico = 1;
+    let estigmas = [];
+    let constelacoes = [];
 
     function getCustoNivel(nivelAtual) {
       if (nivelAtual < 10) return 100;
@@ -125,28 +113,31 @@
     }
 
     function increaseStat(stat, isMagico = false) {
-      const statElement = document.getElementById(stat);
-      let valor = parseInt(statElement.innerText);
-      const custo = getCustoNivel(valor);
+  const statElement = document.getElementById(stat);
+  let valorAtual = parseInt(statElement.innerText); // pega só o número
+  const custo = getCustoNivel(valorAtual);
 
-      if (moedas < custo) {
-        alert("Você não tem moedas suficientes!");
-        return;
-      }
+  if (moedas < custo) {
+    alert("Você não tem moedas suficientes!");
+    return;
+  }
 
-      moedas -= custo;
-      valor++;
-      statElement.innerText = valor;
-      document.getElementById("moedas").innerText = moedas;
+  moedas -= custo;
+  const novoValor = valorAtual + 1;
+  const novoCusto = getCustoNivel(novoValor);
 
-      if (isMagico) {
-        poderMagico = valor;
-        mana = 100 + (poderMagico - 1) * 50;
-        document.getElementById("mana").innerText = mana;
-      }
+  statElement.innerText = `${novoValor} (Custo: ${novoCusto})`;
+  document.getElementById("moedas").innerText = moedas;
 
-      checkButtons();
-    }
+  if (isMagico) {
+    poderMagico = novoValor;
+    mana = 100 + (poderMagico - 1) * 50;
+    document.getElementById("mana").innerText = mana;
+  }
+
+  checkButtons();
+}
+
 
     function addCoins() {
       const quantidade = prompt("Quantas moedas você quer adicionar?");
@@ -181,19 +172,110 @@
       document.getElementById("nivel").innerText = nivel;
     }
 
-    function checkButtons() {
-      const buttons = document.querySelectorAll(".button");
-      buttons.forEach(button => {
-        if (button.innerText.includes("Aumentar")) {
-          const span = button.previousElementSibling;
-          if (span) {
-            const valor = parseInt(span.innerText);
-            const custo = getCustoNivel(valor);
-            button.innerText = `Aumentar (${custo} moedas)`;
-            button.disabled = moedas < custo;
-          }
-        }
+    function addEstigma() {
+      const estigmaCount = estigmas.length + 1;
+      const nome = prompt("Nome do Estigma:");
+      const grau = prompt("Grau (Ex: A, B, C):");
+      const level = prompt("Level:");
+      const descricao = prompt("Insira as Habilidades do Estigma");
+      const estigma = {
+        id: estigmaCount,
+        nome,
+        grau,
+        level,
+        descricao
+      };
+      estigmas.push(estigma);
+      renderEstigmas();
+    }
+
+    function renderEstigmas() {
+      const estigmasContainer = document.getElementById("estigmas-container");
+      estigmasContainer.innerHTML = "<button class='button' onclick='addEstigma()'>Adicionar Estigma</button>";
+      estigmas.forEach(estigma => {
+        const estigmaDiv = document.createElement("div");
+        estigmaDiv.innerHTML = `
+          <strong>Estigma ${estigma.id}:</strong><br>
+          Nome: ${estigma.nome} <br>
+          Grau: ${estigma.grau} <br>
+          Level: ${estigma.level} <br>
+          <strong>Habilidades:</strong><br>
+      <textarea rows="4" cols="50">${estigma.descricao}</textarea><br><br>
+        `;
+        estigmasContainer.appendChild(estigmaDiv);
       });
+    }
+
+    function addConstelacao() {
+  const nome = prompt("Nome da Constelação:");
+  const grau = prompt("Grau da Constelação:");
+  const titulo = prompt("Título:");
+  const afinidade = prompt("Afinidade (de 0 a 100%):");
+  
+  // Altere para um textarea para que o usuário possa digitar múltiplas habilidades
+  const habilidades = prompt("Habilidades (digite várias habilidades separadas por vírgulas):");
+
+  const constelacao = {
+    nome,
+    grau,
+    titulo,
+    afinidade,
+    habilidades
+  };
+
+  constelacoes.push(constelacao);
+  renderConstelacoes();
+}
+
+function renderConstelacoes() {
+  const constelacaoContainer = document.getElementById("constelacao-container");
+  constelacaoContainer.innerHTML = "<button class='button' onclick='addConstelacao()'>Adicionar Constelação</button>";
+  constelacoes.forEach((constelacao, index) => {
+    const constelacaoDiv = document.createElement("div");
+    constelacaoDiv.innerHTML = `
+      <strong>Constelação ${index + 1}:</strong><br>
+      Nome: ${constelacao.nome} <br>
+      Grau: ${constelacao.grau} <br>
+      Título: ${constelacao.titulo} <br>
+      Afinidade: ${constelacao.afinidade}%<br>
+      <strong>Habilidades:</strong><br>
+      <textarea rows="4" cols="50">${constelacao.habilidades}</textarea><br><br>
+    `;
+    constelacaoContainer.appendChild(constelacaoDiv);
+  });
+}
+
+
+    function saveState() {
+      const saveData = {
+        moedas,
+        mana,
+        nivel,
+        poderMagico,
+        estigmas,
+        constelacoes,
+        inventario: document.getElementById("inventario").value
+      };
+      const saveJSON = JSON.stringify(saveData, null, 2);
+      document.getElementById("save-state").value = saveJSON;
+    }
+
+    function importState() {
+      const saveJSON = document.getElementById("save-state").value;
+      if (saveJSON) {
+        const saveData = JSON.parse(saveJSON);
+        moedas = saveData.moedas;
+        mana = saveData.mana;
+        nivel = saveData.nivel;
+        poderMagico = saveData.poderMagico;
+        estigmas = saveData.estigmas;
+        constelacoes = saveData.constelacoes;
+        document.getElementById("inventario").value = saveData.inventario;
+        document.getElementById("moedas").innerText = moedas;
+        document.getElementById("nivel").innerText = nivel;
+        renderEstigmas();  // Atualizar os estigmas
+        renderConstelacoes();  // Atualizar as constelações
+      }
     }
 
     checkButtons();
