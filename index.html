@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Status RPG - Atributos e Moedas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f2f2f2;
+      color: #333;
+    }
+    .status-container {
+      margin-bottom: 20px;
+    }
+    .status-item {
+      margin: 10px 0;
+    }
+    .status-item span {
+      font-weight: bold;
+    }
+    .button {
+      margin-left: 10px;
+      padding: 5px 10px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    .add-attribute {
+      margin-top: 20px;
+    }
+    input {
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Status do Jogador</h2>
+
+  <div class="status-container" id="atributos">
+    <div class="status-item">
+      <span>Nível:</span> <span id="nivel">1</span>
+      <button class="button" onclick="increaseLevel()">Subir Nível</button>
+    </div>
+    <div class="status-item">
+      <span>Força:</span> <span id="forca">1</span>
+      <button class="button" onclick="increaseStat('forca')">Aumentar</button>
+    </div>
+    <div class="status-item">
+      <span>Agilidade:</span> <span id="agilidade">1</span>
+      <button class="button" onclick="increaseStat('agilidade')">Aumentar</button>
+    </div>
+    <div class="status-item">
+      <span>Resistência:</span> <span id="resistencia">1</span>
+      <button class="button" onclick="increaseStat('resistencia')">Aumentar</button>
+    </div>
+    <div class="status-item">
+      <span>Poder Mágico:</span> <span id="poderMagico">1</span>
+      <button class="button" onclick="increaseStat('poderMagico', true)">Aumentar</button>
+    </div>
+    <div class="status-item">
+      <span>Mana:</span> <span id="mana">100</span>
+    </div>
+  </div>
+
+  <h3>Moedas: <span id="moedas">100</span></h3>
+  <button class="button" onclick="addCoins()">Adicionar Moedas</button>
+
+  <div class="add-attribute">
+    <h3>Adicionar Atributo Extra:</h3>
+    <input type="text" id="nome-atributo" placeholder="Ex: Destreza" />
+    <input type="number" id="valor-atributo" value="1" min="1" />
+    <button class="button" onclick="addExtraAttribute()">Adicionar</button>
+  </div>
+
+  <script>
+    let moedas = 100;
+    let mana = 100;
+    let nivel = 1;
+    let poderMagico = 1;
+
+    function getCustoNivel(nivelAtual) {
+      if (nivelAtual < 10) return 100;
+      if (nivelAtual < 11) return 150;
+      if (nivelAtual < 20) return 200;
+      if (nivelAtual < 21) return 250;
+      if (nivelAtual < 30) return 300;
+      if (nivelAtual < 31) return 350;
+      if (nivelAtual < 40) return 400;
+      if (nivelAtual < 41) return 550;
+      if (nivelAtual < 50) return 600;
+      if (nivelAtual < 51) return 750;
+      if (nivelAtual < 60) return 800;
+      if (nivelAtual < 61) return 850;
+      if (nivelAtual < 70) return 900;
+      if (nivelAtual < 71) return 1050;
+      if (nivelAtual < 80) return 1150;
+      if (nivelAtual < 81) return 1250;
+      if (nivelAtual < 90) return 1300;
+      if (nivelAtual < 91) return 1450;
+      if (nivelAtual < 100) return 1600;
+      if (nivelAtual < 101) return 1750;
+      if (nivelAtual < 200) return 1800;
+      if (nivelAtual < 201) return 2000;
+      if (nivelAtual < 300) return 2050;
+      if (nivelAtual < 301) return 2100;
+      if (nivelAtual < 400) return 2250;
+      if (nivelAtual < 401) return 2300;
+      if (nivelAtual < 500) return 2400;
+      if (nivelAtual < 501) return 2550;
+      if (nivelAtual < 600) return 2750;
+      if (nivelAtual < 701) return 2900;
+      if (nivelAtual < 800) return 3000;
+      if (nivelAtual < 801) return 3050;
+      if (nivelAtual < 900) return 3150;
+      if (nivelAtual < 901) return 3250;
+      return 3500;
+    }
+
+    function increaseStat(stat, isMagico = false) {
+      const statElement = document.getElementById(stat);
+      let valor = parseInt(statElement.innerText);
+      const custo = getCustoNivel(valor);
+
+      if (moedas < custo) {
+        alert("Você não tem moedas suficientes!");
+        return;
+      }
+
+      moedas -= custo;
+      valor++;
+      statElement.innerText = valor;
+      document.getElementById("moedas").innerText = moedas;
+
+      if (isMagico) {
+        poderMagico = valor;
+        mana = 100 + (poderMagico - 1) * 50;
+        document.getElementById("mana").innerText = mana;
+      }
+
+      checkButtons();
+    }
+
+    function addCoins() {
+      const quantidade = prompt("Quantas moedas você quer adicionar?");
+      if (quantidade && !isNaN(quantidade)) {
+        moedas += parseInt(quantidade);
+        document.getElementById("moedas").innerText = moedas;
+        checkButtons();
+      }
+    }
+
+    function addExtraAttribute() {
+      const nome = document.getElementById("nome-atributo").value.trim();
+      const valor = parseInt(document.getElementById("valor-atributo").value);
+      if (nome && valor > 0) {
+        const id = nome.replace(/\s+/g, "_").toLowerCase();
+        const atributosContainer = document.getElementById("atributos");
+        const div = document.createElement("div");
+        div.classList.add("status-item");
+        div.innerHTML = `
+          <span>${nome}:</span> <span id="${id}">${valor}</span>
+          <button class="button" onclick="increaseStat('${id}')">Aumentar</button>
+        `;
+        atributosContainer.appendChild(div);
+        checkButtons();
+      } else {
+        alert("Preencha os campos corretamente!");
+      }
+    }
+
+    function increaseLevel() {
+      nivel++;
+      document.getElementById("nivel").innerText = nivel;
+    }
+
+    function checkButtons() {
+      const buttons = document.querySelectorAll(".button");
+      buttons.forEach(button => {
+        if (button.innerText.includes("Aumentar")) {
+          const span = button.previousElementSibling;
+          if (span) {
+            const valor = parseInt(span.innerText);
+            const custo = getCustoNivel(valor);
+            button.innerText = `Aumentar (${custo} moedas)`;
+            button.disabled = moedas < custo;
+          }
+        }
+      });
+    }
+
+    checkButtons();
+  </script>
+</body>
+</html>
